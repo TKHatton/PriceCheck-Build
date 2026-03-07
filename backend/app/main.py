@@ -18,7 +18,7 @@ allowed_origins = [
 ]
 
 # Add Netlify domains
-allowed_origins.append("https://*.netlify.app")
+allowed_origins.append("https://pricecheck-extension.netlify.app")
 
 # Add custom frontend URL if set
 frontend_url = os.getenv('FRONTEND_URL')

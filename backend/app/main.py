@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from app.models.schemas import AnalyzeRequest, AnalyzeResponse
+from app.models.schemas import AnalyzeRequest, AnalyzeResponse, TacticDetail
+from app.graph.graph import compiled_graph
 
 app = FastAPI(
     title="PriceCheck API",
@@ -21,28 +22,85 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok"}
 
+
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest):
     """
-    Main analysis endpoint
-    Accepts page content from extension and returns gaslighting score and tactics
+    Main analysis endpoint.
+    Accepts page content from extension, runs LangGraph pipeline,
+    and returns gaslighting score and tactics.
     """
-    # TODO: Implement LangGraph pipeline
-    # For now, return a placeholder response
-    return AnalyzeResponse(
-        gaslighting_score=0,
-        severity_label="Honest Pricing",
-        tactics=[],
-        trust_score=100,
-        trust_signals=["Analysis not yet implemented"],
-        is_scam=False,
-        marketed_price=None,
-        real_price=None,
-        price_delta=None,
-        error=None
-    )
+    try:
+        # Convert request to state dict for LangGraph
+        initial_state = {
+            "input_type": request.input_type,
+            "page_url": request.page_url,
+            "page_title": request.page_title,
+            "body_text": request.body_text,
+            "price_elements": request.price_elements,
+            "raw_image": request.raw_image,
+            "manual_text": request.manual_text,
+            # Initialize output fields with defaults
+            "trust_score": 100,
+            "trust_signals": [],
+            "trust_gate_pass": True,
+            "tactics": [],
+            "marketed_price": None,
+            "real_price": None,
+            "price_delta": None,
+            "real_cost_note": None,
+            "gaslighting_score": 0,
+            "severity_label": "Honest Pricing",
+            "is_scam": False,
+            "error": None,
+        }
+
+        # Invoke the LangGraph pipeline
+        result_state = compiled_graph.invoke(initial_state)
+
+        # Convert tactics to TacticDetail models
+        tactics = [
+            TacticDetail(
+                name=t.get("name", ""),
+                severity=t.get("severity", 0),
+                evidence=t.get("evidence", ""),
+                explanation=t.get("explanation", "")
+            )
+            for t in result_state.get("tactics", [])
+        ]
+
+        # Build and return response
+        return AnalyzeResponse(
+            gaslighting_score=result_state.get("gaslighting_score", 0),
+            severity_label=result_state.get("severity_label", "Honest Pricing"),
+            tactics=tactics,
+            trust_score=result_state.get("trust_score", 100),
+            trust_signals=result_state.get("trust_signals", []),
+            is_scam=result_state.get("is_scam", False),
+            marketed_price=result_state.get("marketed_price"),
+            real_price=result_state.get("real_price"),
+            price_delta=result_state.get("price_delta"),
+            error=result_state.get("error"),
+        )
+
+    except Exception as e:
+        # Log the error and return error response
+        print(f"[analyze] Error during analysis: {e}")
+        return AnalyzeResponse(
+            gaslighting_score=0,
+            severity_label="Error",
+            tactics=[],
+            trust_score=0,
+            trust_signals=[],
+            is_scam=False,
+            marketed_price=None,
+            real_price=None,
+            price_delta=None,
+            error=str(e),
+        )

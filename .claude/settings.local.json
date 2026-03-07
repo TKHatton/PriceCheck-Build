@@ -3,7 +3,11 @@
     "allow": [
       "Bash(curl:*)",
       "Bash(python:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(pip install:*)"
     ]
   }
 }

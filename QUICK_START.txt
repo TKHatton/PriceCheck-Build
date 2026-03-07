@@ -1,0 +1,118 @@
+====================================================================
+PRICECHECK - QUICK START GUIDE
+====================================================================
+
+✓ BACKEND IS RUNNING on http://localhost:8000
+✓ EXTENSION IS BUILT in extension/dist/
+
+====================================================================
+STEP 1: LOAD EXTENSION IN CHROME (2 minutes)
+====================================================================
+
+1. Open Chrome
+2. Type in address bar: chrome://extensions/
+3. Click toggle for "Developer mode" (top right)
+4. Click "Load unpacked" button
+5. Browse to: C:\Users\ltken\OneDrive\Documents\GitHub\PriceCheck-Build\extension\dist
+6. Click "Select Folder"
+7. You should see PriceCheck card with red icon
+
+✓ If you see the PriceCheck card, extension is loaded!
+
+====================================================================
+STEP 2: OPEN TEST PAGE (30 seconds)
+====================================================================
+
+Double-click this file to open in Chrome:
+C:\Users\ltken\OneDrive\Documents\GitHub\PriceCheck-Build\test-page.html
+
+You should see a product page with:
+- "Limited Time Offer" heading
+- Was $299 Now $79
+- Countdown timer
+- "Only 3 left" message
+
+====================================================================
+STEP 3: TEST THE EXTENSION (1 minute)
+====================================================================
+
+1. Press F12 to open DevTools (this is important!)
+2. Click "Console" tab in DevTools
+3. Look for message: "PriceCheck content script loaded"
+   (If you don't see this, refresh the page)
+
+4. Click the PriceCheck icon in Chrome toolbar (red square)
+5. A popup should open
+
+6. Click the red "Analyze This Page" button
+
+7. Watch what happens:
+   - Button says "Analyzing..."
+   - Console shows logs
+   - Results appear in popup
+
+====================================================================
+WHAT YOU SHOULD SEE
+====================================================================
+
+IN THE CONSOLE (F12):
+- "PriceCheck content script loaded"
+- "[Popup] Page data extracted: {url, title, ...}"
+- "[Popup] Full analysis result: {...}"
+- "[Popup] Gaslighting score: 24"
+- "[Popup] Tactics found: 3"
+
+IN THE POPUP:
+- "Analysis Result" box
+- Score: 20-30
+- Label: Mildly Misleading
+- Tactics: 3
+- Trust: 100
+
+====================================================================
+TROUBLESHOOTING
+====================================================================
+
+PROBLEM: Content script not loaded
+→ Refresh the test page (F5)
+→ Check chrome://extensions/ and click refresh on PriceCheck
+
+PROBLEM: Popup shows error
+→ Check console for error details
+→ Make sure you're on the test-page.html tab
+
+PROBLEM: No results, score is 0
+→ Backend might need Claude API key
+→ This is OK for testing the UI flow
+→ The connection is working if you see the result box
+
+====================================================================
+BACKEND LOGS
+====================================================================
+
+If you want to see what the backend is doing, look at the terminal
+where the server is running. You'll see:
+
+[input_router] Processing input_type: page
+[content_node] Processing page: file:///...
+[trust_node] Checking trust for: file:///...
+[analyze_node] Analyzing with Claude API
+[score_node] Calculating gaslighting score
+[output_node] Preparing final output
+
+====================================================================
+NEXT STEPS
+====================================================================
+
+Once you can see the extension working:
+1. Try it on real websites (Amazon, etc.)
+2. Check if the scores and results make sense
+3. Let me know what you want to change about the UI/UX
+
+====================================================================
+NEED HELP?
+====================================================================
+
+See START_HERE.md for detailed troubleshooting guide.
+
+====================================================================

@@ -7,6 +7,7 @@ import asyncio
 import nest_asyncio
 from app.graph.state import PriceCheckState
 from app.services.trust import check_trust
+from app.services.claude import analyze_content
 
 # Allow nested event loops
 nest_asyncio.apply()
@@ -113,14 +114,26 @@ def analyze_node(state: PriceCheckState) -> PriceCheckState:
     """
     print("[analyze_node] Analyzing with Claude API")
 
-    # TODO: Implement Claude API call with analysis prompt
-    # For now, return placeholder analysis
+    # Extract content from state
+    body_text = state.get('body_text', '')
+    price_elements = state.get('price_elements', [])
+    page_title = state.get('page_title', '')
+
+    # Call Claude API for analysis
+    analysis_result = asyncio.run(analyze_content(
+        body_text=body_text,
+        price_elements=price_elements,
+        page_title=page_title
+    ))
+
     updated_state = dict(state)
-    updated_state['tactics'] = []
-    updated_state['marketed_price'] = None
-    updated_state['real_price'] = None
-    updated_state['price_delta'] = None
-    updated_state['real_cost_note'] = None
+    updated_state['tactics'] = analysis_result.get('tactics', [])
+    updated_state['marketed_price'] = analysis_result.get('marketed_price')
+    updated_state['real_price'] = analysis_result.get('real_price')
+    updated_state['price_delta'] = analysis_result.get('price_delta')
+    updated_state['real_cost_note'] = analysis_result.get('real_cost_note')
+
+    print(f"[analyze_node] Found {len(updated_state['tactics'])} tactics")
 
     return updated_state
 
@@ -154,13 +167,8 @@ def score_node(state: PriceCheckState) -> PriceCheckState:
     }
 
     tactics = state.get('tactics', [])
+    is_scam = state.get('is_scam', False)
     updated_state = dict(state)
-
-    # Check for fraudulent storefront first
-    if any(t.get('name') == 'FRAUDULENT_STOREFRONT' for t in tactics):
-        updated_state['gaslighting_score'] = 95
-        updated_state['severity_label'] = 'Full Gaslighting'
-        return updated_state
 
     # Calculate weighted score
     if not tactics:
@@ -177,6 +185,10 @@ def score_node(state: PriceCheckState) -> PriceCheckState:
 
     # Normalize to 0-100 scale (max raw score ~100 with 10 tactics at severity 10)
     normalized_score = min(100, int(total_score))
+
+    # If is_scam flag is set (fraudulent storefront), ensure minimum score of 95
+    if is_scam:
+        normalized_score = max(95, normalized_score)
 
     # Assign severity label
     if normalized_score <= 20:

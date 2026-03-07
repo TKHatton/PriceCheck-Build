@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Product - Amazing Deal!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .price {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .new-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .timer {
+            background: #f39c12;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .scarcity {
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Limited Time Offer!</h1>
+
+    <h2>Premium Wireless Headphones</h2>
+
+    <div class="price">
+        <span class="old-price">WAS $299.99</span>
+        <span class="new-price">NOW ONLY $79.99!</span>
+    </div>
+
+    <div class="timer">
+        ⏰ SALE ENDS IN 09:47:23
+    </div>
+
+    <div class="scarcity">
+        🚨 Only 3 left in stock! Order now!
+    </div>
+
+    <p><strong>Product Features:</strong></p>
+    <ul>
+        <li>Noise cancellation technology</li>
+        <li>40-hour battery life</li>
+        <li>Premium sound quality</li>
+    </ul>
+
+    <p><strong>Special Offer:</strong> Free trial of our premium service - cancel anytime! Only $49/month after trial period.</p>
+
+    <button style="background: #e74c3c; color: white; padding: 15px 30px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer;">
+        Add to Cart
+    </button>
+
+    <hr style="margin: 40px 0;">
+
+    <h3>🎯 Test Instructions</h3>
+    <ol>
+        <li>Make sure backend server is running: <code>cd backend && python -m uvicorn app.main:app --reload --port 8000</code></li>
+        <li>Load extension in Chrome: <code>chrome://extensions/</code> → Load unpacked → Select <code>extension/dist/</code></li>
+        <li>Click the PriceCheck extension icon (should appear in toolbar)</li>
+        <li>Click "Analyze This Page" button</li>
+        <li>Open DevTools (F12) and check Console for logs</li>
+        <li>Should see analysis results in popup</li>
+    </ol>
+
+    <h3>Expected Results:</h3>
+    <ul>
+        <li><strong>Tactics found:</strong> 3-4</li>
+        <li><strong>FAKE_DISCOUNT:</strong> "WAS $299 NOW $79"</li>
+        <li><strong>DARK_PATTERNS:</strong> Countdown timer + "Only 3 left"</li>
+        <li><strong>SUBSCRIPTION_TRAP:</strong> Free trial auto-converts to $49/month</li>
+        <li><strong>Gaslighting Score:</strong> 20-30 (Mildly Misleading)</li>
+        <li><strong>Trust Score:</strong> 100 (no domain issues)</li>
+    </ul>
+
+    <h3>Console Logs to Check:</h3>
+    <pre style="background: #f4f4f4; padding: 10px; border-radius: 5px;">
+[Popup] Page data extracted: {...}
+[Popup] Full analysis result: {...}
+[Popup] Gaslighting score: 24
+[Popup] Severity label: "Mildly Misleading"
+[Popup] Tactics found: 3
+[Popup] Trust score: 100
+[Popup] Is scam: false
+    </pre>
+</body>
+</html>

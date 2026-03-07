@@ -1,15 +1,14 @@
 {
-  "name": "pricecheck-extension",
+  "name": "pricecheck-landing",
   "version": "1.0.0",
-  "description": "Chrome extension that exposes pricing manipulation tactics",
+  "description": "PriceCheck landing page - marketing surface for Chrome extension",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node fix-build.js",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "framer-motion": "^12.35.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

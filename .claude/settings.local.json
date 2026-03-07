@@ -7,7 +7,10 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)"
     ]
   }
 }

@@ -1,35 +1,79 @@
 import React, { useState } from 'react';
+import LoadingNarrative from './LoadingNarrative';
+import ResultsView from './ResultsView';
+import ScamView from './ScamView';
 
 function Popup() {
   const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [pageTitle, setPageTitle] = useState('');
+
+  const loadingSteps = [
+    'Reading this page...',
+    'Checking domain trust...',
+    'Analyzing pricing tactics...',
+    'Calculating your Gaslighting Score...'
+  ];
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
+    setError(null);
+    setResult(null);
+    setPageTitle('');
 
     try {
-      // Get active tab
+      // Step 1: Get active tab
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-      // Send message to content script to extract page data
+      if (!tab?.id) {
+        throw new Error('No active tab found');
+      }
+
+      // Step 2: Send message to content script to extract page data
       const pageData = await chrome.tabs.sendMessage(tab.id, { action: 'extractPageData' });
 
-      console.log('Page data extracted:', pageData);
+      console.log('[Popup] Page data extracted:', pageData);
 
-      // TODO: Send to backend API
-      // const response = await fetch('http://localhost:8000/analyze', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     input_type: 'page',
-      //     ...pageData,
-      //     price_elements: pageData.priceElements || []
-      //   })
-      // });
-      // const result = await response.json();
-      // console.log('Analysis result:', result);
+      if (pageData.error) {
+        throw new Error(`Content script error: ${pageData.error}`);
+      }
 
-    } catch (error) {
-      console.error('Analysis failed:', error);
+      // Store page title for display
+      setPageTitle(pageData.title || 'Product Page');
+
+      // Step 3: POST to backend API
+      const response = await fetch('http://localhost:8000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input_type: 'page',
+          page_url: pageData.url || '',
+          page_title: pageData.title || '',
+          body_text: pageData.bodyText || '',
+          price_elements: pageData.priceElements || []
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      // Step 4: Parse and log response
+      const analysisResult = await response.json();
+
+      console.log('[Popup] Full analysis result:', analysisResult);
+      console.log('[Popup] Gaslighting score:', analysisResult.gaslighting_score);
+      console.log('[Popup] Severity label:', analysisResult.severity_label);
+      console.log('[Popup] Tactics found:', analysisResult.tactics?.length || 0);
+      console.log('[Popup] Trust score:', analysisResult.trust_score);
+      console.log('[Popup] Is scam:', analysisResult.is_scam);
+
+      setResult(analysisResult);
+
+    } catch (err) {
+      console.error('[Popup] Analysis failed:', err);
+      setError(err.message || 'Analysis failed. Please try again.');
     } finally {
       setAnalyzing(false);
     }
@@ -52,6 +96,31 @@ function Popup() {
       >
         {analyzing ? 'Analyzing...' : 'Analyze This Page'}
       </button>
+
+      {/* Loading Narrative */}
+      {analyzing && (
+        <div className="mt-6">
+          <LoadingNarrative steps={loadingSteps} />
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="mt-4 p-4 bg-red-tint border border-red-mid rounded">
+          <p className="font-body text-sm text-red-alarm">
+            <strong>Error:</strong> {error}
+          </p>
+        </div>
+      )}
+
+      {/* Results: Show ScamView for scam sites, ResultsView for normal analysis */}
+      {result && !analyzing && (
+        result.is_scam ? (
+          <ScamView trustSignals={result.trust_signals || []} />
+        ) : (
+          <ResultsView result={result} pageTitle={pageTitle} />
+        )
+      )}
     </div>
   );
 }

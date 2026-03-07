@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import AnalyzeRequest, AnalyzeResponse, TacticDetail
@@ -9,14 +10,25 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS configuration for Chrome extension and local development
+# CORS configuration for Chrome extension, Netlify, and local development
+allowed_origins = [
+    "chrome-extension://*",
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+
+# Add Netlify domains
+allowed_origins.append("https://*.netlify.app")
+
+# Add custom frontend URL if set
+frontend_url = os.getenv('FRONTEND_URL')
+if frontend_url:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "chrome-extension://*",
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.netlify\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -8,6 +8,9 @@ langgraph>=0.2.55
 langchain-anthropic>=0.3.7
 langchain-core>=0.3.28
 
+# Anthropic SDK
+anthropic>=0.40.0
+
 # HTTP client
 httpx>=0.28.1
 

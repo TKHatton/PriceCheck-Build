@@ -3,7 +3,13 @@ LangGraph node functions for PriceCheck analysis pipeline.
 Each node reads from and writes to the shared PriceCheckState.
 """
 
+import asyncio
+import nest_asyncio
 from app.graph.state import PriceCheckState
+from app.services.trust import check_trust
+
+# Allow nested event loops
+nest_asyncio.apply()
 
 
 def input_router(state: PriceCheckState) -> PriceCheckState:
@@ -53,12 +59,24 @@ def trust_node(state: PriceCheckState) -> PriceCheckState:
     """
     print(f"[trust_node] Checking trust for: {state.get('page_url', 'unknown')}")
 
-    # TODO: Implement actual trust checks with external APIs
-    # For now, return default passing trust score
+    # Call async trust check service
+    page_url = state.get('page_url', '')
+    page_title = state.get('page_title', '')
+    body_text = state.get('body_text', '')
+
+    # Run async function in sync context
+    trust_result = asyncio.run(check_trust(
+        url=page_url,
+        page_title=page_title,
+        body_text=body_text
+    ))
+
     updated_state = dict(state)
-    updated_state['trust_score'] = 85
-    updated_state['trust_signals'] = ['Domain trust check pending implementation']
-    updated_state['trust_gate_pass'] = True
+    updated_state['trust_score'] = trust_result['trust_score']
+    updated_state['trust_signals'] = trust_result['trust_signals']
+    updated_state['trust_gate_pass'] = trust_result['trust_score'] >= 30
+
+    print(f"[trust_node] Trust score: {trust_result['trust_score']}, Signals: {len(trust_result['trust_signals'])}")
 
     return updated_state
 

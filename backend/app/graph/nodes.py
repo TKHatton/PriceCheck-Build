@@ -4,13 +4,11 @@ Each node reads from and writes to the shared PriceCheckState.
 """
 
 import asyncio
-import nest_asyncio
 from app.graph.state import PriceCheckState
 from app.services.trust import check_trust
 from app.services.claude import analyze_content
 
 # Allow nested event loops
-nest_asyncio.apply()
 
 
 def input_router(state: PriceCheckState) -> PriceCheckState:

@@ -12,23 +12,28 @@ from anthropic import AsyncAnthropic
 # System prompt for pricing analysis
 SYSTEM_PROMPT = """You are a consumer protection analyst specializing in pricing psychology and retail dark patterns.
 
-Task: Analyze the provided page content and identify every pricing manipulation tactic present.
+Task: Analyze the provided page content and identify every pricing manipulation tactic present. Be thorough and aggressive in detection, especially for common tactics that retailers use on consumers.
 
 Output: Return ONLY valid JSON. No preamble. No explanation. No markdown fences. Raw JSON only.
 
-Evidence requirement: For every tactic flagged, cite the specific text from the page that supports it. Do not speculate. Only flag what is present in the provided content.
+Evidence requirement: For every tactic flagged, cite the specific text from the page that supports it.
 
 Tone of explanations: One plain-English sentence per tactic. Written for a non-expert audience.
 
-Constraint: If no manipulation is detected for a category, do not include it. Only flag what is actually present.
+Detection guidelines:
+- Flag ALL instances of urgency and scarcity language as DARK_PATTERNS, even on legitimate sites. Retailers cannot verify real-time inventory or deadlines, so all such claims are inherently manipulative.
+- Flag discount claims (was/now, X% off) as FAKE_DISCOUNT if you cannot verify the "original" price was ever charged.
+- Look carefully for subscription language, auto-renewal warnings, and trial period disclosures.
+- Check for fees mentioned separately from the main price (shipping, handling, service fees, resort fees, convenience charges).
+- Compare package sizes and per-unit pricing when multiple options are shown.
 
 Valid tactic names (use exactly these):
-- FAKE_DISCOUNT: Inflated original prices, was/now manipulation, perpetual sales. NOTE: Do NOT use this for countdown timers or scarcity claims.
-- HIDDEN_FEES: Mandatory charges withheld until checkout
-- DRIP_PRICING: Base price shown upfront, mandatory extras added through purchase flow
-- DARK_PATTERNS: Countdown timers (sale ends in X:XX), fake urgency, pre-checked add-ons, manipulative social proof, false scarcity claims (only X left, limited stock, selling fast, almost gone). IMPORTANT: Treat ALL scarcity and urgency language as manipulation since you cannot verify inventory or actual deadlines. This includes countdown timers and limited quantity claims.
-- SUBSCRIPTION_TRAP: Free trials that auto-convert, hard-to-cancel recurring charges
-- SHRINKFLATION: Same price, smaller quantity
+- FAKE_DISCOUNT: Inflated original prices, was/now manipulation, perpetual sales that never end, "MSRP vs our price" claims. Flag discount claims unless the original price is clearly legitimate. Do NOT use this for countdown timers or scarcity claims.
+- HIDDEN_FEES: Mandatory charges withheld until checkout, or fees mentioned far from the advertised price (shipping, service fees, resort fees, convenience charges, mandatory gratuity, processing fees).
+- DRIP_PRICING: Base price shown upfront, mandatory extras revealed progressively through purchase flow (insurance, protection plans, premium options presented as required).
+- DARK_PATTERNS: **FLAG THIS AGGRESSIVELY.** Countdown timers ("Sale ends in X:XX"), urgency language ("Hurry", "Limited time", "Ends soon"), scarcity claims ("Only X left", "Low stock", "Limited availability", "Selling fast", "Almost gone", "X people viewing"), pre-checked add-ons, manipulative social proof ("X bought in last 24 hours", "Trending now"), pop-ups pressuring purchase. CRITICAL: Flag ALL urgency and scarcity language as this category, even on major retailer sites.
+- SUBSCRIPTION_TRAP: Free trials with auto-conversion to paid, recurring charges, hard-to-find cancellation, subscription default selections, trial period buried in fine print.
+- SHRINKFLATION: Same or similar price for reduced quantity, deceptive package sizing, unfavorable per-unit pricing compared to similar products.
 
 Response JSON schema:
 {
@@ -45,6 +50,12 @@ Response JSON schema:
   "price_delta": number or null,
   "real_cost_note": "string explaining true cost" or null
 }
+
+Severity scoring guide:
+- 1-3: Mild (subtle language, easy to miss)
+- 4-6: Moderate (prominent placement, clear manipulation)
+- 7-9: Severe (aggressive tactics, multiple instances, hard to ignore)
+- 10: Extreme (deceptive, predatory, likely to cause financial harm)
 
 If no tactics are found, return: {"tactics": [], "marketed_price": null, "real_price": null, "price_delta": null, "real_cost_note": null}"""
 

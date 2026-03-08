@@ -12,7 +12,8 @@
       "Bash(git add:*)",
       "Bash(git reset:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nComplete PriceCheck monorepo: Extension, Backend, Landing\n\nExtension:\n- React + Vite Chrome extension with manifest v3\n- Full UI: LoadingNarrative, ScoreDisplay, TacticCard, SplitScreen, TrustBadge, ScamView\n- Content script extracts page data natively\n- Wired to backend API with error handling\n\nBackend:\n- FastAPI with LangGraph pipeline \\(9 nodes, conditional routing\\)\n- Trust layer: domain age, brand mismatch, price implausibility, contact checks\n- Claude API integration for manipulation detection\n- Scoring algorithm with category weights\n- CORS configured for production \\(Netlify, Chrome extension\\)\n- Deployment: render.yaml and Dockerfile\n\nLanding:\n- React + Vite marketing site\n- All 6 sections per PRD: Hero, Trust Bar, Demo Result, How It Works, Tactic Cards, CTA\n- Fully responsive \\(375px mobile tested\\)\n- Ready for Netlify deployment\n\nCo-Authored-By: Claude Sonnet 4.5 \\(1M context\\) <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git pull:*)"
     ]
   }
 }

@@ -32,39 +32,11 @@ def content_node(state: PriceCheckState) -> PriceCheckState:
 
 def ocr_node(state: PriceCheckState) -> PriceCheckState:
     """
-    Processes screenshot using Claude Vision API.
-    Extracts pricing and manipulation tactics from image.
+    OCR node - disabled for Haiku (no vision support).
+    Pass-through node that does nothing.
     """
-    print("[ocr_node] Processing screenshot with Claude Vision")
-
-    # Get image data
-    image_b64 = state.get('raw_image_b64', '')
-    page_title = state.get('page_title', '')
-    page_url = state.get('page_url', '')
-
-    if not image_b64:
-        print("[ocr_node] No image data provided, skipping")
-        return state
-
-    # Call Claude Vision API for analysis
-    analysis_result = asyncio.run(analyze_content(
-        body_text=f"Screenshot from: {page_url}",
-        price_elements=[],
-        page_title=page_title,
-        image_b64=image_b64
-    ))
-
-    # Update state with analysis results
-    updated_state = dict(state)
-    updated_state['tactics'] = analysis_result.get('tactics', [])
-    updated_state['marketed_price'] = analysis_result.get('marketed_price')
-    updated_state['real_price'] = analysis_result.get('real_price')
-    updated_state['price_delta'] = analysis_result.get('price_delta')
-    updated_state['real_cost_note'] = analysis_result.get('real_cost_note')
-
-    print(f"[ocr_node] Vision analysis complete: {len(updated_state['tactics'])} tactics found")
-
-    return updated_state
+    print("[ocr_node] Skipping - Haiku doesn't support vision")
+    return state
 
 
 def manual_node(state: PriceCheckState) -> PriceCheckState:

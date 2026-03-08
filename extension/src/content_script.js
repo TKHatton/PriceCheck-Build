@@ -5,7 +5,7 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action !== 'extractPageData') return;
 
-  // Wait 500ms for React-rendered content to load (Fix 1)
+  // Wait 1500ms for React-rendered content to load (Temu needs more time)
   setTimeout(() => {
     try {
       // Extract page data
@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.error('Error extracting page data:', error);
       sendResponse({ error: error.message });
     }
-  }, 500);
+  }, 1500);
 
   // Return true to keep message channel open for async response
   return true;
@@ -108,6 +108,21 @@ function extractPriceElements() {
       seenTexts.add(dataPrice);
       priceElements.push({
         text: dataPrice,
+        selector: getSelector(el)
+      });
+    }
+  });
+
+  // Brute force pass: scan ALL elements for anything we might have missed
+  document.querySelectorAll('*').forEach(el => {
+    const text = el.innerText?.trim();
+    if (!text || text.length >= 50 || seenTexts.has(text)) return;
+
+    // Check for price patterns
+    if (/\$[\d]/.test(text) || /\d+%/.test(text) || /off/i.test(text) || /sold/i.test(text)) {
+      seenTexts.add(text);
+      priceElements.push({
+        text: text,
         selector: getSelector(el)
       });
     }

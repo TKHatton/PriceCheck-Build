@@ -3,8 +3,6 @@ LangGraph node functions for PriceCheck analysis pipeline.
 Each node reads from and writes to the shared PriceCheckState.
 """
 
-import asyncio
-import nest_asyncio
 from app.graph.state import PriceCheckState
 from app.services.trust import check_trust
 from app.services.claude import analyze_content
@@ -56,30 +54,16 @@ def trust_node(state: PriceCheckState) -> PriceCheckState:
     """
     print(f"[trust_node] Checking trust for: {state.get('page_url', 'unknown')}")
 
-    # Call async trust check service
+    # Call trust check service
     page_url = state.get('page_url', '')
     page_title = state.get('page_title', '')
     body_text = state.get('body_text', '')
 
-    # Run async function in sync context - handle both running and non-running loops
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            nest_asyncio.apply(loop)
-            trust_result = loop.run_until_complete(check_trust(
-                url=page_url,
-                page_title=page_title,
-                body_text=body_text
-            ))
-        else:
-            trust_result = asyncio.run(check_trust(
-                url=page_url,
-                page_title=page_title,
-                body_text=body_text
-            ))
-    except Exception as e:
-        print(f"[trust_node] Error: {e}")
-        trust_result = {'trust_score': 100, 'trust_signals': []}
+    trust_result = check_trust(
+        url=page_url,
+        page_title=page_title,
+        body_text=body_text
+    )
 
     updated_state = dict(state)
     updated_state['trust_score'] = trust_result['trust_score']
@@ -133,25 +117,12 @@ def analyze_node(state: PriceCheckState) -> PriceCheckState:
         print(f"  [{i}] {elem}")
     print("=" * 80)
 
-    # Call Claude API for analysis - handle both running and non-running loops
-    try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            nest_asyncio.apply(loop)
-            analysis_result = loop.run_until_complete(analyze_content(
-                body_text=body_text,
-                price_elements=price_elements,
-                page_title=page_title
-            ))
-        else:
-            analysis_result = asyncio.run(analyze_content(
-                body_text=body_text,
-                price_elements=price_elements,
-                page_title=page_title
-            ))
-    except Exception as e:
-        print(f"[analyze_node] Error calling Claude: {e}")
-        analysis_result = {'tactics': [], 'error': str(e)}
+    # Call Claude API for analysis
+    analysis_result = analyze_content(
+        body_text=body_text,
+        price_elements=price_elements,
+        page_title=page_title
+    )
 
     updated_state = dict(state)
     updated_state['tactics'] = analysis_result.get('tactics', [])

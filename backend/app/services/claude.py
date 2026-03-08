@@ -6,7 +6,7 @@ Uses Anthropic SDK to analyze page content for pricing manipulation tactics.
 import os
 import json
 from typing import Optional
-from anthropic import AsyncAnthropic
+from anthropic import Anthropic
 
 
 # System prompt for pricing analysis
@@ -87,7 +87,7 @@ Severity scoring guide:
 If no tactics are found, return: {"tactics": [], "marketed_price": null, "real_price": null, "price_delta": null, "real_cost_note": null}"""
 
 
-async def analyze_content(
+def analyze_content(
     body_text: str,
     price_elements: list,
     page_title: str
@@ -132,12 +132,12 @@ PAGE CONTENT:
 {body_text[:12000]}"""  # Truncate to avoid token limits
 
     try:
-        client = AsyncAnthropic(api_key=api_key)
+        client = Anthropic(api_key=api_key)
 
         # Use model from environment or fall back to Haiku
         model = os.getenv('CLAUDE_MODEL', 'claude-3-haiku-20240307')
 
-        response = await client.messages.create(
+        response = client.messages.create(
             model=model,
             max_tokens=2048,
             system=SYSTEM_PROMPT,

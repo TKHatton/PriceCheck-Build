@@ -32,7 +32,7 @@ MAJOR_BRANDS = {
 }
 
 
-async def check_trust(
+def check_trust(
     url: str,
     page_title: str = '',
     body_text: str = ''
@@ -66,7 +66,7 @@ async def check_trust(
         return {'trust_score': 0, 'trust_signals': trust_signals}
 
     # Signal 1: Domain age check (WHOIS)
-    domain_age_result = await check_domain_age(domain)
+    domain_age_result = check_domain_age(domain)
     if domain_age_result:
         trust_score -= domain_age_result['deduction']
         trust_signals.extend(domain_age_result['signals'])
@@ -98,7 +98,7 @@ async def check_trust(
     }
 
 
-async def check_domain_age(domain: str) -> Optional[dict]:
+def check_domain_age(domain: str) -> Optional[dict]:
     """
     Check domain registration age via WHOIS API.
     Deducts 35 points if domain is less than 90 days old.
@@ -110,9 +110,9 @@ async def check_domain_age(domain: str) -> Optional[dict]:
         return None
 
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        with httpx.Client(timeout=10.0) as client:
             # Using WHOIS API (whoisxmlapi.com format)
-            response = await client.get(
+            response = client.get(
                 f'https://www.whoisxmlapi.com/whoisserver/WhoisService',
                 params={
                     'apiKey': whois_api_key,

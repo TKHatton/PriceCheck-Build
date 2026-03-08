@@ -1,0 +1,10 @@
+{
+  "input_type": "page",
+  "page_url": "https://test.com",
+  "page_title": "Test",
+  "body_text": "WAS $299 NOW ONLY $79! SALE ENDS IN 09:47! Only 3 left! Free trial $49/month after.",
+  "price_elements": [
+    {"text": "WAS $299"},
+    {"text": "NOW $79"}
+  ]
+}

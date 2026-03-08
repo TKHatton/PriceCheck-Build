@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import LoadingNarrative from './LoadingNarrative';
 import ResultsView from './ResultsView';
-import ScamView from './ScamView';
 
 function Popup() {
   const [analyzing, setAnalyzing] = useState(false);
@@ -42,17 +41,20 @@ function Popup() {
       // Store page title for display
       setPageTitle(pageData.title || 'Product Page');
 
+      // Build request payload
+      const requestPayload = {
+        input_type: 'page',
+        page_url: pageData.url || '',
+        page_title: pageData.title || '',
+        body_text: pageData.bodyText || '',
+        price_elements: pageData.priceElements || []
+      };
+
       // Step 3: POST to backend API
       const response = await fetch('http://localhost:8000/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input_type: 'page',
-          page_url: pageData.url || '',
-          page_title: pageData.title || '',
-          body_text: pageData.bodyText || '',
-          price_elements: pageData.priceElements || []
-        })
+        body: JSON.stringify(requestPayload)
       });
 
       if (!response.ok) {
@@ -68,6 +70,19 @@ function Popup() {
       console.log('[Popup] Tactics found:', analysisResult.tactics?.length || 0);
       console.log('[Popup] Trust score:', analysisResult.trust_score);
       console.log('[Popup] Is scam:', analysisResult.is_scam);
+
+      // DEBUG: Send to debug endpoint after analysis
+      try {
+        const debugResponse = await fetch('http://localhost:8000/debug-input', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestPayload)
+        });
+        const debugData = await debugResponse.json();
+        console.log('PRICECHECK DEBUG:', debugData);
+      } catch (debugErr) {
+        console.error('Debug endpoint failed:', debugErr);
+      }
 
       setResult(analysisResult);
 
@@ -113,13 +128,9 @@ function Popup() {
         </div>
       )}
 
-      {/* Results: Show ScamView for scam sites, ResultsView for normal analysis */}
+      {/* Results: Always show ResultsView (trust gate disabled) */}
       {result && !analyzing && (
-        result.is_scam ? (
-          <ScamView trustSignals={result.trust_signals || []} />
-        ) : (
-          <ResultsView result={result} pageTitle={pageTitle} />
-        )
+        <ResultsView result={result} pageTitle={pageTitle} />
       )}
     </div>
   );

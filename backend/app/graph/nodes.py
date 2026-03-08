@@ -82,24 +82,17 @@ def trust_node(state: PriceCheckState) -> PriceCheckState:
 
 def trust_gate(state: PriceCheckState) -> PriceCheckState:
     """
-    Evaluates trust_score and sets is_scam flag.
-    Routing to output_node or analyze_node is handled by edges.py.
+    Pass-through node that preserves trust_score for informational purposes.
+    Trust gate is disabled - all pages proceed to full Claude analysis.
     """
     trust_score = state.get('trust_score', 100)
-    print(f"[trust_gate] Trust score: {trust_score}")
+    print(f"[trust_gate] Trust score: {trust_score} (gate disabled - proceeding to analyze)")
 
     updated_state = dict(state)
 
-    if trust_score < 30:
-        updated_state['is_scam'] = True
-        updated_state['trust_gate_pass'] = False
-        updated_state['gaslighting_score'] = 95  # Minimum score for scam sites
-        updated_state['severity_label'] = 'Fraudulent Storefront'
-        print("[trust_gate] SCAM DETECTED - routing to output")
-    else:
-        updated_state['is_scam'] = False
-        updated_state['trust_gate_pass'] = True
-        print("[trust_gate] Trust passed - routing to analyze")
+    # Always pass through to analysis - trust gate disabled
+    updated_state['is_scam'] = False
+    updated_state['trust_gate_pass'] = True
 
     return updated_state
 
@@ -116,6 +109,18 @@ def analyze_node(state: PriceCheckState) -> PriceCheckState:
     body_text = state.get('body_text', '')
     price_elements = state.get('price_elements', [])
     page_title = state.get('page_title', '')
+
+    # DEBUG: Log what's being sent to Claude
+    print("=" * 80)
+    print("[DEBUG] Content being sent to Claude:")
+    print("-" * 80)
+    print(f"[DEBUG] Page title: {page_title}")
+    print(f"[DEBUG] Body text (first 500 chars):\n{body_text[:500]}")
+    print("-" * 80)
+    print(f"[DEBUG] Price elements (count: {len(price_elements)}):")
+    for i, elem in enumerate(price_elements):
+        print(f"  [{i}] {elem}")
+    print("=" * 80)
 
     # Call Claude API for analysis
     analysis_result = asyncio.run(analyze_content(

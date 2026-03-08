@@ -1,5 +1,4 @@
 import React from 'react';
-import TrustBadge from './TrustBadge';
 import SplitScreen from './SplitScreen';
 import ScoreDisplay from './ScoreDisplay';
 
@@ -8,8 +7,7 @@ function ResultsView({ result, pageTitle }) {
 
   return (
     <div className="mt-6 space-y-6">
-      {/* Trust Badge (PASS fades out after 2s, WARN persists, FAIL doesn't render) */}
-      <TrustBadge trustScore={result.trust_score} />
+      {/* Trust Badge removed - trust gate disabled */}
 
       {/* Split Screen: Price Comparison and Tactic Cards */}
       <SplitScreen

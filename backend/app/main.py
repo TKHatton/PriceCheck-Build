@@ -116,3 +116,22 @@ async def analyze(request: AnalyzeRequest):
             price_delta=None,
             error=str(e),
         )
+
+
+@app.post("/debug-input")
+async def debug_input(request: AnalyzeRequest):
+    """
+    Debug endpoint that echoes back what was received from the extension.
+    Returns the first 1000 characters of body_text, full price_elements array,
+    page_title, and page_url.
+    """
+    return {
+        "page_title": request.page_title,
+        "page_url": request.page_url,
+        "body_text_preview": request.body_text[:1000] if request.body_text else "",
+        "body_text_length": len(request.body_text) if request.body_text else 0,
+        "price_elements": request.price_elements,
+        "has_price_16": "$16" in (request.body_text or ""),
+        "has_41_off": "41%" in (request.body_text or ""),
+        "has_27_50": "27.50" in (request.body_text or ""),
+    }

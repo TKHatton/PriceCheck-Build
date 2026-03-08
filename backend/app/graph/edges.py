@@ -29,18 +29,13 @@ def route_by_input_type(state: PriceCheckState) -> Literal['content_node', 'ocr_
 
 def route_by_trust(state: PriceCheckState) -> Literal['output_node', 'analyze_node']:
     """
-    Routes from trust_gate based on trust_score.
+    Routes from trust_gate to analyze_node.
 
-    If trust_score < 30: routes to output_node (scam exit, skip analysis)
-    If trust_score >= 30: routes to analyze_node (continue analysis)
+    Trust gate disabled - all pages get full Claude analysis regardless of trust score.
+    Trust score is still calculated and returned in the response for informational purposes.
 
     Returns:
-        'output_node' if trust_score < 30 (scam detected)
-        'analyze_node' if trust_score >= 30 (site trusted enough to analyze)
+        'analyze_node' (always - trust gate disabled)
     """
-    trust_score = state.get('trust_score', 100)
-
-    if trust_score < 30:
-        return 'output_node'
-    else:
-        return 'analyze_node'
+    # Always route to analyze_node - trust gate disabled
+    return 'analyze_node'

@@ -131,6 +131,23 @@ def analyze_node(state: PriceCheckState) -> PriceCheckState:
     updated_state['price_delta'] = analysis_result.get('price_delta')
     updated_state['real_cost_note'] = analysis_result.get('real_cost_note')
 
+    # Fallback price extraction if Claude didn't extract marketed_price
+    if updated_state['marketed_price'] is None and price_elements:
+        import re
+        price_pattern = re.compile(r'\$[\d,.]+')
+        for element in price_elements:
+            text = element.get('text', '') if isinstance(element, dict) else str(element)
+            match = price_pattern.search(text)
+            if match:
+                try:
+                    # Extract and parse price (remove $ and commas)
+                    price_str = match.group().replace('$', '').replace(',', '')
+                    updated_state['marketed_price'] = float(price_str)
+                    print(f"[analyze_node] Fallback extracted marketed_price: ${updated_state['marketed_price']}")
+                    break
+                except (ValueError, AttributeError):
+                    continue
+
     print(f"[analyze_node] Found {len(updated_state['tactics'])} tactics")
 
     return updated_state
@@ -225,5 +242,10 @@ def output_node(state: PriceCheckState) -> PriceCheckState:
     updated_state.setdefault('real_price', None)
     updated_state.setdefault('price_delta', None)
     updated_state.setdefault('error', None)
+
+    # Add fallback message if price was detected but couldn't be parsed
+    if updated_state['marketed_price'] is None and updated_state.get('price_elements'):
+        if not updated_state.get('real_cost_note'):
+            updated_state['real_cost_note'] = 'Price detected but could not be parsed'
 
     return updated_state

@@ -16,22 +16,35 @@ Task: Analyze the provided page content and identify every pricing manipulation 
 
 Output: Return ONLY valid JSON. No preamble. No explanation. No markdown fences. Raw JSON only.
 
-Evidence requirement: For every tactic flagged, cite the specific text from the page that supports it.
+Evidence requirement: Flag any tactic where reasonable evidence exists in the page content. For every tactic flagged, cite the specific text from the page that supports it.
 
 Tone of explanations: One plain-English sentence per tactic. Written for a non-expert audience.
 
 Detection guidelines:
 - Flag ALL instances of urgency and scarcity language as DARK_PATTERNS, even on legitimate sites. Retailers cannot verify real-time inventory or deadlines, so all such claims are inherently manipulative.
-- Flag discount claims (was/now, X% off) as FAKE_DISCOUNT if you cannot verify the "original" price was ever charged.
+- A crossed-out price next to a lower current price is FAKE_DISCOUNT unless there is clear evidence the original price was regularly charged. The mere presence of a strikethrough price is sufficient evidence to flag this.
+- If the page shows a percentage discount (e.g. 41% OFF), flag it as FAKE_DISCOUNT with severity 6 minimum unless the discount is verifiably tied to documented price history.
+- Installment payment options (Afterpay, Klarna, Pay in 4, Buy Now Pay Later) displayed at point of purchase are a form of DRIP_PRICING that obscures the true total cost. Always flag these with severity 5 minimum.
 - Look carefully for subscription language, auto-renewal warnings, and trial period disclosures.
 - Check for fees mentioned separately from the main price (shipping, handling, service fees, resort fees, convenience charges).
 - Compare package sizes and per-unit pricing when multiple options are shown.
 
 Valid tactic names (use exactly these):
-- FAKE_DISCOUNT: Inflated original prices, was/now manipulation, perpetual sales that never end, "MSRP vs our price" claims. Flag discount claims unless the original price is clearly legitimate. Do NOT use this for countdown timers or scarcity claims.
+- FAKE_DISCOUNT: Inflated original prices, was/now manipulation, perpetual sales that never end, "MSRP vs our price" claims, crossed-out prices shown next to sale prices, percentage discount badges (e.g. "41% OFF"). **CRITICAL: If you see a strikethrough/crossed-out price or a percentage discount badge, flag this immediately.** Do NOT use this category for countdown timers or scarcity claims.
 - HIDDEN_FEES: Mandatory charges withheld until checkout, or fees mentioned far from the advertised price (shipping, service fees, resort fees, convenience charges, mandatory gratuity, processing fees).
-- DRIP_PRICING: Base price shown upfront, mandatory extras revealed progressively through purchase flow (insurance, protection plans, premium options presented as required).
-- DARK_PATTERNS: **FLAG THIS AGGRESSIVELY.** Countdown timers ("Sale ends in X:XX"), urgency language ("Hurry", "Limited time", "Ends soon"), scarcity claims ("Only X left", "Low stock", "Limited availability", "Selling fast", "Almost gone", "X people viewing"), pre-checked add-ons, manipulative social proof ("X bought in last 24 hours", "Trending now"), pop-ups pressuring purchase. CRITICAL: Flag ALL urgency and scarcity language as this category, even on major retailer sites.
+- DRIP_PRICING: Base price shown upfront, mandatory extras revealed progressively through purchase flow (insurance, protection plans, premium options presented as required). **CRITICAL: Installment payment options like Afterpay, Klarna, "Pay in 4", or "Buy Now Pay Later" are ALWAYS this category with minimum severity 5.**
+- DARK_PATTERNS: **FLAG THIS AGGRESSIVELY.** This includes ALL of the following regardless of site legitimacy:
+  • Crossed-out original prices shown next to a sale price (visual manipulation)
+  • Any "X% OFF" badge or label
+  • Social proof claims ("31K+ sold", "X people viewing this", "Trending", "Popular")
+  • Installment payment options displayed at point of purchase ("Pay $4 today with Afterpay/Klarna")
+  • Popup overlays offering coupons, bonuses, or time-limited deals
+  • Countdown timers ("Sale ends in X:XX")
+  • Urgency language ("Hurry", "Limited time", "Ends soon", "Today only")
+  • Scarcity claims ("Only X left", "Low stock", "Limited availability", "Selling fast", "Almost gone")
+  • Pre-checked add-ons or default selections
+  • Manipulative social proof ("X bought in last 24 hours")
+  **CRITICAL: Flag ALL of these tactics even on major legitimate retailer sites. They are manipulation regardless of site reputation.**
 - SUBSCRIPTION_TRAP: Free trials with auto-conversion to paid, recurring charges, hard-to-find cancellation, subscription default selections, trial period buried in fine print.
 - SHRINKFLATION: Same or similar price for reduced quantity, deceptive package sizing, unfavorable per-unit pricing compared to similar products.
 

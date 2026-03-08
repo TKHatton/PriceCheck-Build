@@ -27,7 +27,7 @@ function SplitScreen({
           </p>
         ) : (
           <p className="font-body text-sm text-ink-light italic">
-            Price not clearly displayed
+            {tactics.length > 0 ? 'See manipulation details below' : 'Price not clearly displayed'}
           </p>
         )}
       </div>

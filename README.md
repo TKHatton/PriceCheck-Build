@@ -1,4 +1,3 @@
-README.MD -- COPY THIS VERBATIM
 # PriceCheck -- The Price Gaslighting Detector
 
 > See the real price. Stop getting played.

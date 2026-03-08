@@ -16,7 +16,11 @@
       "Bash(git pull:*)",
       "Bash(zip:*)",
       "Bash(powershell.exe:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(uvicorn:*)",
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(ping:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

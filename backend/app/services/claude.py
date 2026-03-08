@@ -76,15 +76,18 @@ If no tactics are found, return: {"tactics": [], "marketed_price": null, "real_p
 async def analyze_content(
     body_text: str,
     price_elements: list,
-    page_title: str
+    page_title: str,
+    image_b64: Optional[str] = None
 ) -> dict:
     """
     Analyzes page content for pricing manipulation tactics using Claude.
+    Supports both text and vision (screenshot) input.
 
     Args:
         body_text: Main text content from the page (up to 15k chars)
         price_elements: List of extracted price elements from DOM
         page_title: The page title
+        image_b64: Optional base64-encoded PNG screenshot for Vision API
 
     Returns:
         dict with keys: tactics, marketed_price, real_price, price_delta, real_cost_note
@@ -120,15 +123,36 @@ PAGE CONTENT:
     try:
         client = AsyncAnthropic(api_key=api_key)
 
-        # Use model from environment or fall back to working model
-        model = os.getenv('CLAUDE_MODEL', 'claude-3-haiku-20240307')
+        # Use model from environment or fall back to Sonnet 4
+        model = os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-20250514')
+
+        # Build message content - multimodal if image provided
+        if image_b64:
+            # Vision API: content is array with image and text
+            message_content = [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": image_b64
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": user_message
+                }
+            ]
+        else:
+            # Text-only
+            message_content = user_message
 
         response = await client.messages.create(
             model=model,
             max_tokens=2048,
             system=SYSTEM_PROMPT,
             messages=[
-                {"role": "user", "content": user_message}
+                {"role": "user", "content": message_content}
             ]
         )
 

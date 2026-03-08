@@ -22,32 +22,32 @@ function Popup() {
     setPageTitle('');
 
     try {
-      // Step 1: Get active tab
+      // Step 1: Get active tab info
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
       if (!tab?.id) {
         throw new Error('No active tab found');
       }
 
-      // Step 2: Send message to content script to extract page data
-      const pageData = await chrome.tabs.sendMessage(tab.id, { action: 'extractPageData' });
-
-      console.log('[Popup] Page data extracted:', pageData);
-
-      if (pageData.error) {
-        throw new Error(`Content script error: ${pageData.error}`);
-      }
-
       // Store page title for display
-      setPageTitle(pageData.title || 'Product Page');
+      setPageTitle(tab.title || 'Product Page');
 
-      // Build request payload
+      // Step 2: Capture screenshot as base64 PNG
+      const screenshotDataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
+
+      // Extract base64 string (remove "data:image/png;base64," prefix)
+      const base64Image = screenshotDataUrl.split(',')[1];
+
+      console.log('[Popup] Screenshot captured:', base64Image.length, 'characters');
+
+      // Build request payload for OCR/Vision analysis
       const requestPayload = {
-        input_type: 'page',
-        page_url: pageData.url || '',
-        page_title: pageData.title || '',
-        body_text: pageData.bodyText || '',
-        price_elements: pageData.priceElements || []
+        input_type: 'image',
+        page_url: tab.url || '',
+        page_title: tab.title || '',
+        body_text: '',
+        price_elements: [],
+        raw_image_b64: base64Image
       };
 
       // Step 3: POST to backend API

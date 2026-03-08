@@ -10,6 +10,7 @@ class AnalyzeRequest(BaseModel):
     body_text: str = Field(..., description="Visible text content from page (truncated to 15k chars)")
     price_elements: list = Field(default_factory=list, description="Extracted price elements from DOM")
     raw_image: Optional[bytes] = Field(None, description="Raw image bytes if using screenshot input")
+    raw_image_b64: Optional[str] = Field(None, description="Base64-encoded PNG screenshot for Vision API")
     manual_text: Optional[str] = Field(None, description="Manual text input if user typed directly")
 
 

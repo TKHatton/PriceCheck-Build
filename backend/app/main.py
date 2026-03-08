@@ -57,6 +57,7 @@ async def analyze(request: AnalyzeRequest):
             "body_text": request.body_text,
             "price_elements": request.price_elements,
             "raw_image": request.raw_image,
+            "raw_image_b64": request.raw_image_b64,
             "manual_text": request.manual_text,
             # Initialize output fields with defaults
             "trust_score": 100,

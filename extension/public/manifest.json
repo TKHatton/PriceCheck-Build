@@ -3,7 +3,7 @@
   "name": "PriceCheck",
   "version": "1.0",
   "description": "See the real price. Stop getting played.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",

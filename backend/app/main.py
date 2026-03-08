@@ -1,8 +1,12 @@
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import AnalyzeRequest, AnalyzeResponse, TacticDetail
 from app.graph.graph import compiled_graph
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(
     title="PriceCheck API",
@@ -48,6 +52,15 @@ async def analyze(request: AnalyzeRequest):
     Accepts page content from extension, runs LangGraph pipeline,
     and returns gaslighting score and tactics.
     """
+    # Truncate body_text to prevent Claude API overload on massive pages
+    if request.body_text and len(request.body_text) > 12000:
+        request.body_text = request.body_text[:12000]
+
+    print(f"[ANALYZE ENDPOINT] Received request:")
+    print(f"  body_text length: {len(request.body_text) if request.body_text else 0}")
+    print(f"  price_elements count: {len(request.price_elements) if request.price_elements else 0}")
+    print(f"  page_url: {request.page_url}")
+
     try:
         # Convert request to state dict for LangGraph
         initial_state = {

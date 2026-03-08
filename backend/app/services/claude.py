@@ -48,6 +48,20 @@ Valid tactic names (use exactly these):
 - SUBSCRIPTION_TRAP: Free trials with auto-conversion to paid, recurring charges, hard-to-find cancellation, subscription default selections, trial period buried in fine print.
 - SHRINKFLATION: Same or similar price for reduced quantity, deceptive package sizing, unfavorable per-unit pricing compared to similar products.
 
+DETECTION RULES - Apply these aggressively:
+
+• Any crossed-out or strikethrough price next to a lower price = FAKE_DISCOUNT (severity 7+)
+• Any "X% OFF" badge or label = FAKE_DISCOUNT (severity 6+)
+• Any "Only X left", "Almost sold out", "Selling fast", "X sold", "Limited stock" = DARK_PATTERNS (severity 7+)
+• Any countdown timer or "Sale ends in" = DARK_PATTERNS (severity 8+)
+• Any "Buy now pay later", Afterpay, Klarna installment breakdown = DARK_PATTERNS (severity 5+)
+• Any "Free trial" that converts to paid subscription = SUBSCRIPTION_TRAP (severity 7+)
+• Any coupon popups, bonus offers, or "extra discount" overlays = DARK_PATTERNS (severity 5+)
+• Any pre-checked add-ons or insurance options = DARK_PATTERNS (severity 6+)
+
+IMPORTANT: You are analyzing a REAL retail page. The text will contain navigation, product descriptions, and other noise mixed in with pricing tactics. Search through ALL the provided text carefully. Do not dismiss tactics just because they appear alongside legitimate content. If you see pricing manipulation patterns ANYWHERE in the text, flag them.
+If the page contains multiple products (like a category page), analyze the pricing patterns visible across all products.
+
 Response JSON schema:
 {
   "tactics": [
@@ -111,7 +125,7 @@ async def analyze_content(
 
 PAGE TITLE: {page_title}
 
-PRICE ELEMENTS FOUND:
+EXTRACTED PRICE ELEMENTS:
 {price_elements_text}
 
 PAGE CONTENT:

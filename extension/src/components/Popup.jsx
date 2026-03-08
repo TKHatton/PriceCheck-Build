@@ -3,6 +3,8 @@ import LoadingNarrative from './LoadingNarrative';
 import ResultsView from './ResultsView';
 
 function Popup() {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -51,7 +53,7 @@ function Popup() {
       };
 
       // Step 3: POST to backend API
-      const response = await fetch('http://localhost:8000/analyze', {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestPayload)
@@ -73,7 +75,7 @@ function Popup() {
 
       // DEBUG: Send to debug endpoint after analysis
       try {
-        const debugResponse = await fetch('http://localhost:8000/debug-input', {
+        const debugResponse = await fetch(`${API_URL}/debug-input`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestPayload)

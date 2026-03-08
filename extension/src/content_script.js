@@ -169,6 +169,22 @@ function getBodyText() {
     bodyText += '\n\n[ADDITIONAL PRICE DATA]\n' + uniqueData.slice(0, 20).join('\n');
   }
 
+  // Capture elements with price-related class names (for React-rendered sites like Temu)
+  const priceClassElements = document.querySelectorAll(
+    '[class*="price" i], [class*="discount" i], [class*="sale" i], [class*="saving" i], [class*="origin" i]'
+  );
+  const classData = [];
+  priceClassElements.forEach(el => {
+    const text = el.innerText?.trim();
+    if (text && text.length < 200 && text.length > 0) {
+      classData.push(text);
+    }
+  });
+  if (classData.length > 0) {
+    const uniqueClassData = [...new Set(classData)];
+    bodyText += '\n\n[PRICE-RELATED ELEMENTS]\n' + uniqueClassData.slice(0, 30).join('\n');
+  }
+
   return bodyText;
 }
 

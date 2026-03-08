@@ -21,3 +21,6 @@ pydantic-settings>=2.7.0
 # Environment variables
 python-dotenv>=1.0.0
 
+# Nested event loop support
+nest-asyncio>=1.5.6
+

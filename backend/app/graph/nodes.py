@@ -198,8 +198,11 @@ def score_node(state: PriceCheckState) -> PriceCheckState:
         weight = WEIGHTS.get(name, 1.0)
         total_score += severity * weight
 
-    # Normalize to 0-100 scale (max raw score ~100 with 10 tactics at severity 10)
-    normalized_score = min(100, int(total_score))
+    # Normalize: a single high-severity tactic (10 * 1.3 = 13) should score ~30
+    # Two serious tactics should hit 50+, four+ should hit 70+
+    # Scale factor: divide by expected "moderate manipulation" baseline, multiply by 100
+    max_expected_raw = 35  # ~3 tactics at severity 8 with avg weight 1.1
+    normalized_score = min(100, int((total_score / max_expected_raw) * 100))
 
     # If is_scam flag is set (fraudulent storefront), ensure minimum score of 95
     if is_scam:

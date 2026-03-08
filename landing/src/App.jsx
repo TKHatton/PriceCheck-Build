@@ -16,7 +16,9 @@ function App() {
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href="#install"
+              href="https://github.com/TKHatton/PriceCheck-Build/releases/tag/v1.0"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-red-alarm text-white font-display text-xl font-bold px-8 py-4 rounded-lg hover:bg-opacity-90 transition-all duration-150 w-full sm:w-auto text-center"
             >
               Install Extension
@@ -154,7 +156,61 @@ function App() {
         </div>
       </section>
 
-      {/* Section 5: Tactic Cards */}
+      {/* Section 5: Install in 3 Steps */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-ink text-center mb-16">
+            Install in 3 Steps
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-alarm rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="font-display text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 className="font-display text-xl font-bold text-ink mb-2">
+                Download
+              </h3>
+              <p className="font-body text-sm text-ink-mid">
+                Click Install Extension above to download the zip from GitHub
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-alarm rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="font-display text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 className="font-display text-xl font-bold text-ink mb-2">
+                Unzip
+              </h3>
+              <p className="font-body text-sm text-ink-mid">
+                Extract the downloaded zip file to any folder on your computer
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-alarm rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="font-display text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 className="font-display text-xl font-bold text-ink mb-2">
+                Load in Chrome
+              </h3>
+              <p className="font-body text-sm text-ink-mid">
+                Open chrome://extensions, enable Developer Mode, click Load Unpacked, select the dist folder
+              </p>
+            </div>
+          </div>
+
+          <p className="font-body text-sm text-ink-light text-center mt-8">
+            Works on any Chromium browser: Chrome, Edge, Brave, Arc. Mobile browsers do not support extensions.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 6: Tactic Cards */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-display text-4xl md:text-5xl font-bold text-ink text-center mb-16">
@@ -225,14 +281,16 @@ function App() {
         </div>
       </section>
 
-      {/* Section 6: Bottom CTA */}
+      {/* Section 7: Bottom CTA */}
       <section className="bg-red-alarm py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-display text-3xl md:text-4xl font-bold text-white mb-8">
             Stop getting played.
           </p>
           <a
-            href="#install"
+            href="https://github.com/TKHatton/PriceCheck-Build/releases/tag/v1.0"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-white text-red-alarm font-display text-xl font-bold px-10 py-5 rounded-lg hover:bg-opacity-90 transition-all duration-150"
           >
             Install Extension
